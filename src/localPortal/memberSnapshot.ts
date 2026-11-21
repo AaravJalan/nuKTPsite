@@ -1,7 +1,7 @@
 import Logo from "../Assets/Images/Branding/Logo.png";
 
 // Copy only portal directory fields. Never import private users/admin/auth data.
-const profileFields = ["name", "email", "role", "year", "major", "majors", "minor", "minors", "internships", "graduation_year", "workplace", "about", "profile_pic_link", "pfp_thumb_link", "pfp_large_link", "banner_activity", "cover_page_link", "cover_resized_link", "resume_link", "resume_filename", "linkedin", "instagram", "leetcode", "pledge_tracker", "standing_viewable", "internships_viewable", "email_viewable", "allowed"];
+const profileFields = ["name", "email", "role", "year", "major", "majors", "minor", "minors", "internships", "graduation_year", "workplace", "about", "profile_pic_link", "pfp_thumb_link", "pfp_large_link", "banner_activity", "cover_page_link", "cover_resized_link", "resume_link", "resume_filename", "linkedin", "instagram", "github", "leetcode", "pledge_tracker", "standing_viewable", "internships_viewable", "email_viewable", "allowed"];
 
 export function mergeMemberSnapshot(data: any, snapshot: any): number {
   if (!snapshot?.public_users || typeof snapshot.public_users !== "object" || Array.isArray(snapshot.public_users)) throw new Error("Invalid local member snapshot");

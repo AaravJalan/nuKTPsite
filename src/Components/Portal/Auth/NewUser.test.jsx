@@ -63,15 +63,15 @@ async function submit() {
   await act(async () => container.querySelector("form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })));
 }
 
-test('member About requires at least 200 characters before saving', async () => {
+test('member About requires at least 75 characters before saving', async () => {
   await mountEditor(savedProfile);
   const about = document.getElementById('about');
-  expect(about.minLength).toBe(200);
-  about.value = 'a'.repeat(199);
+  expect(about.minLength).toBe(75);
+  about.value = 'a'.repeat(74);
   await submit();
   expect(update).not.toHaveBeenCalled();
-  expect(Swal.fire).toHaveBeenLastCalledWith(expect.objectContaining({ title: 'About section must be at least 200 characters long' }));
-  about.value = 'a'.repeat(200);
+  expect(Swal.fire).toHaveBeenLastCalledWith(expect.objectContaining({ title: 'About section must be at least 75 characters long' }));
+  about.value = 'a'.repeat(75);
   await submit();
   expect(update).toHaveBeenCalledTimes(2);
 });

@@ -46,7 +46,7 @@ class NewUser extends React.Component {
       uid: this.user.uid,
       email: this.props.alumni ? this.loadedProfile?.email || "" : value("email-address"), name: value("last-name"), phone: this.props.alumni ? this.loadedProfile?.phone || "" : value("phone-number"),
       year: this.props.alumni ? "Alumni" : value("year"), major: this.state.majors.join(", "), minor: this.state.minors.join(", "), majors: [...this.state.majors], minors: [...this.state.minors], internships: this.props.alumni ? this.loadedProfile?.internships || "" : value("internships"),
-      insta: value("instagram"), leetcode: this.props.alumni ? this.loadedProfile?.leetcode?.username || "" : value("leetcode"), linkedin: value("linkedin"),
+      insta: value("instagram"), github: value("github"), leetcode: this.props.alumni ? this.loadedProfile?.leetcode?.username || "" : value("leetcode"), linkedin: value("linkedin"),
       about: this.props.alumni ? this.loadedProfile?.about || "" : value("about"), ...this.visibility,
       ...(this.props.alumni ? { graduation_year: value("graduation-year"), workplace: value("workplace") } : {}),
     });
@@ -125,10 +125,10 @@ class NewUser extends React.Component {
         icon: "error",
         title: "Phone input not filled in",
       });
-    } else if (!this.props.alumni && config.about.trim().length < 200) {
+    } else if (!this.props.alumni && config.about.trim().length < 75) {
       Swal.fire({
         icon: "error",
-        title: "About section must be at least 200 characters long",
+        title: "About section must be at least 75 characters long",
       });
     } else if (!this.props.alumni && !this.resumeAdded) {
       Swal.fire({
@@ -150,6 +150,7 @@ class NewUser extends React.Component {
         ...(!this.props.alumni ? { minor: config.minor, minors: config.minors } : {}),
         internships: config.internships,
         instagram: config.insta,
+        github: config.github,
         "leetcode/username": config.leetcode,
         linkedin: config.linkedin,
         about: config.about,
@@ -177,6 +178,7 @@ class NewUser extends React.Component {
           : "",
         "leetcode/username": config.leetcode,
         instagram: config.insta,
+        github: config.github,
         linkedin: config.linkedin,
         about: config.about,
         signed_up: true,
@@ -244,7 +246,7 @@ class NewUser extends React.Component {
             const values = {
               "last-name": prof.name, "email-address": prof.email, "phone-number": prof.phone,
               year: prof.year, internships: prof.internships,
-              instagram: prof.instagram, linkedin: prof.linkedin, about: prof.about,
+              instagram: prof.instagram, github: prof.github, linkedin: prof.linkedin, about: prof.about,
               leetcode: prof.leetcode?.username,
               "graduation-year": graduationYear(prof), workplace: prof.workplace,
             };

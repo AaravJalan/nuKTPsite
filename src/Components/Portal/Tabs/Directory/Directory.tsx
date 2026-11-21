@@ -36,8 +36,8 @@ function Directory(props: any) {
   function profileIncludesSearch(profile: any, search_val: string) {
     if (alumni && graduationYear(profile).includes(search_val)) return true;
     const searches = alumni
-      ? ["name", "major", "majors", "workplace", "graduation_year", "linkedin", "instagram"]
-      : ["about", "email", "internships", "linkedin", "instagram", "major", "majors", "minor", "minors", "name", "role", "year"];
+      ? ["name", "major", "majors", "workplace", "graduation_year", "linkedin", "instagram", "github"]
+      : ["about", "email", "internships", "linkedin", "instagram", "github", "major", "majors", "minor", "minors", "name", "role", "year"];
     for (var i = 0; i < searches.length; i++) {
       const searchableValue = toSearchableString(Array.isArray(profile[searches[i]]) ? profile[searches[i]].join(" ") : profile[searches[i]]);
       if (searchableValue.includes(search_val)) {
