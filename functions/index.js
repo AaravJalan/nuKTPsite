@@ -19,13 +19,76 @@ const usersRef = () => getDatabase().ref("users");
 const allowedRef = () => getDatabase().ref("allowed_users");
 const publicRef = () => getDatabase().ref("public_users");
 
-const LEETCODE_API_BASE_URL = "https://leetcode-stats-api.herokuapp.com/";
+const LEETCODE_GRAPHQL_URL = "https://leetcode.com/graphql";
+const LEETCODE_STATS_QUERY = `
+  query userPublicProfile($username: String!) {
+    matchedUser(username: $username) {
+      submitStatsGlobal {
+        acSubmissionNum {
+          difficulty
+          count
+        }
+        totalSubmissionNum {
+          difficulty
+          count
+        }
+      }
+    }
+  }
+`;
 const LEETCODE_UPDATE_MIN_INTERVAL_MS = 10 * 60 * 1000;
 const leetcodeUpdateMetaRef = () =>
   getDatabase().ref("system/leetcode_update_meta");
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function countByDifficulty(rows, difficulty) {
+  if (!Array.isArray(rows)) return 0;
+  const match = rows.find((row) => row && row.difficulty === difficulty);
+  return Number(match && match.count) || 0;
+}
+
+function sanitizeLeetCodeUsername(raw) {
+  if (typeof raw !== "string") return "";
+  let username = raw.trim().replace(/^@+/, "");
+  if (!username) return "";
+
+  const fromSite = username.match(/leetcode\.com\/(?:u\/)?([^/?#]+)/i);
+  if (fromSite && fromSite[1]) return fromSite[1].trim();
+
+  const fromPath = username.match(/^u\/([^/?#]+)/i);
+  if (fromPath && fromPath[1]) return fromPath[1].trim();
+
+  username = username.split(/[?#]/)[0] || "";
+  if (username.includes("/")) {
+    const parts = username.split("/").filter(Boolean);
+    username = parts[parts.length - 1] || "";
+  }
+  return username.replace(/\/+$/, "").trim();
+}
+
+function normalizeLeetCodeStats(matchedUser) {
+  const stats = matchedUser && matchedUser.submitStatsGlobal;
+  if (!stats) return null;
+
+  const easySolved = countByDifficulty(stats.acSubmissionNum, "Easy");
+  const mediumSolved = countByDifficulty(stats.acSubmissionNum, "Medium");
+  const hardSolved = countByDifficulty(stats.acSubmissionNum, "Hard");
+  const totalAccepted = countByDifficulty(stats.acSubmissionNum, "All");
+  const totalSubmitted = countByDifficulty(stats.totalSubmissionNum, "All");
+  const acceptanceRate =
+    totalSubmitted > 0
+      ? Math.round((totalAccepted / totalSubmitted) * 10000) / 100
+      : 0;
+
+  return {
+    easySolved,
+    mediumSolved,
+    hardSolved,
+    acceptanceRate,
+  };
 }
 
 function formatDurationMs(ms) {
@@ -130,22 +193,48 @@ async function runLeetCodeUpdateWithThrottle(options = {}) {
   }
 }
 
-async function fetchLeetCodeStats(username) {
+async function fetchLeetCodeStats(rawUsername) {
+  const username = sanitizeLeetCodeUsername(rawUsername);
+  if (!username) {
+    return { ok: false, error: "Empty username" };
+  }
+
   let retries = 3;
   let lastError = null;
 
   while (retries > 0) {
     try {
-      const response = await fetch(LEETCODE_API_BASE_URL + username, {
-        timeout: 10000,
+      const response = await fetch(LEETCODE_GRAPHQL_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Referer: "https://leetcode.com",
+          "User-Agent": "ktp-site-leetcode-updater",
+        },
+        body: JSON.stringify({
+          query: LEETCODE_STATS_QUERY,
+          variables: { username },
+        }),
       });
 
       if (response && response.ok) {
-        const data = await response.json();
-        if (data.easySolved === undefined || data.easySolved === null) {
-          lastError = "Invalid payload";
+        const payload = await response.json();
+        if (payload.errors && payload.errors.length) {
+          lastError =
+            payload.errors[0].message || "LeetCode GraphQL returned errors";
+          // Missing users will not succeed on retry.
+          if (/does not exist/i.test(lastError)) {
+            return { ok: false, error: lastError };
+          }
         } else {
-          return { ok: true, data };
+          const data = normalizeLeetCodeStats(
+            payload.data && payload.data.matchedUser
+          );
+          if (!data) {
+            lastError = "User not found or invalid payload";
+          } else {
+            return { ok: true, data };
+          }
         }
       } else {
         lastError = "HTTP " + (response ? response.status : "unknown error");
@@ -174,12 +263,19 @@ async function runLeetCodeUpdate(options = {}) {
 
   const failedUsers = [];
   let skipped = 0;
+  let updated = 0;
 
-  const updatePromises = Object.keys(pubusers).map(async (user_uid) => {
+  // Same Firebase write shape as before, but fetch sequentially so LeetCode
+  // GraphQL is less likely to rate-limit the scheduled updater.
+  for (const user_uid of Object.keys(pubusers)) {
     const user = pubusers[user_uid];
 
     if (user.leetcode && user.leetcode.username) {
-      const username = user.leetcode.username;
+      const username = sanitizeLeetCodeUsername(user.leetcode.username);
+      if (!username) {
+        skipped++;
+        continue;
+      }
       logger.log("Updating leetcode stats for " + username);
 
       const result = await fetchLeetCodeStats(username);
@@ -188,7 +284,8 @@ async function runLeetCodeUpdate(options = {}) {
           "Failed to fetch leetcode stats for " + username + ": " + result.error
         );
         failedUsers.push(username);
-        return false;
+        await delay(250);
+        continue;
       }
 
       const res = result.data;
@@ -225,22 +322,21 @@ async function runLeetCodeUpdate(options = {}) {
           ", hard=" +
           hardSolved
       );
-      return true;
+      updated++;
+      await delay(250);
+      continue;
     }
 
     if (user.leetcode && !user.leetcode.username) {
       logger.log("Removing " + user_uid + "'s leetcode data (no username)");
       await usersRef().child(user_uid + "/leetcode").remove();
       await publicRef().child(user_uid + "/leetcode").remove();
-      return false;
+      continue;
     }
 
     skipped++;
-    return false;
-  });
+  }
 
-  const results = await Promise.all(updatePromises);
-  const updated = results.filter((result) => result === true).length;
   return {
     updated,
     failed: failedUsers,
@@ -248,7 +344,13 @@ async function runLeetCodeUpdate(options = {}) {
   };
 }
 
-exports.lcupdate = onSchedule("*/10 * * * *", async (event) => {
+// Once daily at midnight Chicago time. Admin lcupdateNow can still refresh manually.
+exports.lcupdate = onSchedule(
+  {
+    schedule: "0 0 * * *",
+    timeZone: "America/Chicago",
+  },
+  async (event) => {
   logger.log("LeetCode update function starting...");
   
   try {
