@@ -344,6 +344,126 @@ async function runLeetCodeUpdate(options = {}) {
   };
 }
 
+function emailGradYear(email) {
+  if (typeof email !== "string") return null;
+  const match = email.trim().toLowerCase().match(/(20\d{2})@(?:u\.)?northwestern\.edu$/);
+  return match ? Number(match[1]) : null;
+}
+
+function deriveFromGradYear(gradYear, asOf = new Date()) {
+  const academicStartYear = asOf.getMonth() >= 7 ? asOf.getFullYear() : asOf.getFullYear() - 1;
+  const seniorClass = academicStartYear + 1;
+  const delta = gradYear - seniorClass;
+  if (delta < 0) return { standing: "Alumni", graduation_year: String(gradYear) };
+  if (delta === 0) return { standing: "Senior", graduation_year: String(gradYear) };
+  if (delta === 1) return { standing: "Junior", graduation_year: String(gradYear) };
+  if (delta === 2) return { standing: "Sophomore", graduation_year: String(gradYear) };
+  return { standing: "Freshman", graduation_year: String(gradYear) };
+}
+
+function roleOf(profile) {
+  const role = typeof profile?.role === "object" ? profile.role?.role : profile?.role;
+  return typeof role === "string" ? role.trim() : "";
+}
+
+async function syncClassYearsFromEmail(asOf = new Date()) {
+  const [publicSnap, usersSnap] = await Promise.all([
+    publicRef().once("value"),
+    usersRef().once("value"),
+  ]);
+  const publicUsers = publicSnap.val() || {};
+  const privateUsers = usersSnap.val() || {};
+  const updates = {};
+  let updated = 0;
+  let skippedManual = 0;
+  let skippedNoEmail = 0;
+  let unchanged = 0;
+
+  for (const [uid, profile] of Object.entries(publicUsers)) {
+    if (!profile || typeof profile !== "object") continue;
+    const name = typeof profile.name === "string" ? profile.name.trim() : "";
+    if (!name || profile.allowed === false) continue;
+    if (profile.class_year_manual === true || privateUsers[uid]?.class_year_manual === true) {
+      skippedManual += 1;
+      continue;
+    }
+
+    const email =
+      [profile.email, privateUsers[uid]?.email].find(
+        (value) => typeof value === "string" && value.trim()
+      ) || "";
+    const gradFromEmail = emailGradYear(email);
+    if (!gradFromEmail) {
+      skippedNoEmail += 1;
+      continue;
+    }
+
+    const derived = deriveFromGradYear(gradFromEmail, asOf);
+    const alumni =
+      roleOf(profile).toLowerCase() === "alumni" || derived.standing === "Alumni";
+    const currentYear = String(privateUsers[uid]?.year || profile.year || "").trim();
+    const currentGrad = String(
+      privateUsers[uid]?.graduation_year || profile.graduation_year || ""
+    ).trim();
+    const next = {};
+
+    if (alumni) {
+      if (currentGrad !== derived.graduation_year) next.graduation_year = derived.graduation_year;
+      if (currentYear !== "Alumni") next.year = "Alumni";
+    } else if (currentYear !== derived.standing) {
+      next.year = derived.standing;
+    }
+
+    if (!Object.keys(next).length) {
+      unchanged += 1;
+      continue;
+    }
+
+    next.class_year_manual = false;
+    updated += 1;
+    for (const [field, value] of Object.entries(next)) {
+      updates[`public_users/${uid}/${field}`] = value;
+      updates[`users/${uid}/${field}`] = value;
+    }
+  }
+
+  if (Object.keys(updates).length) {
+    await getDatabase().ref().update(updates);
+  }
+
+  return { updated, skippedManual, skippedNoEmail, unchanged };
+}
+
+// Once a year on Sept 1 at midnight Chicago — bump standings from NU email class years.
+exports.syncClassFromEmail = onSchedule(
+  {
+    schedule: "0 0 1 9 *",
+    timeZone: "America/Chicago",
+  },
+  async () => {
+    logger.log("Scheduled class-year sync starting...");
+    try {
+      const summary = await syncClassYearsFromEmail(new Date());
+      logger.log("Scheduled class-year sync completed", summary);
+    } catch (error) {
+      logger.error("Scheduled class-year sync failed:", error);
+      throw error;
+    }
+  }
+);
+
+// Admin-only manual refresh (same logic as Sept 1 job).
+exports.syncClassFromEmailNow = functions.https.onCall(async (data, context) => {
+  if (!context.auth) throw new Error("User not authenticated");
+  const userSnapshot = await usersRef().child(context.auth.uid).once("value");
+  if (!userSnapshot.val() || !userSnapshot.val().admin) {
+    throw new Error("User is not an admin");
+  }
+  const summary = await syncClassYearsFromEmail(new Date());
+  logger.log("Manual class-year sync completed", summary);
+  return { status: "ok", ...summary };
+});
+
 // Once daily at midnight Chicago time. Admin lcupdateNow can still refresh manually.
 exports.lcupdate = onSchedule(
   {

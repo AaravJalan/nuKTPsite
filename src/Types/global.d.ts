@@ -52,4 +52,6 @@ declare type UserProfileType = {
   resume_filename?: string;
   role?: string;
   year?: string;
+  /** When true, standing/graduation_year were set in settings and email sync should not overwrite. */
+  class_year_manual?: boolean;
 };
