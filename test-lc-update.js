@@ -8,6 +8,61 @@ admin.initializeApp({
 
 const db = admin.database();
 
+const LEETCODE_GRAPHQL_URL = "https://leetcode.com/graphql";
+const LEETCODE_STATS_QUERY = `
+  query userPublicProfile($username: String!) {
+    matchedUser(username: $username) {
+      submitStatsGlobal {
+        acSubmissionNum { difficulty count }
+        totalSubmissionNum { difficulty count }
+      }
+    }
+  }
+`;
+
+function countByDifficulty(rows, difficulty) {
+  if (!Array.isArray(rows)) return 0;
+  const match = rows.find((row) => row && row.difficulty === difficulty);
+  return Number(match && match.count) || 0;
+}
+
+async function fetchLeetCodeStats(username) {
+  const response = await fetch(LEETCODE_GRAPHQL_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Referer: "https://leetcode.com",
+      "User-Agent": "ktp-site-leetcode-updater",
+    },
+    body: JSON.stringify({
+      query: LEETCODE_STATS_QUERY,
+      variables: { username },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("HTTP " + response.status);
+  }
+
+  const payload = await response.json();
+  const stats = payload.data && payload.data.matchedUser && payload.data.matchedUser.submitStatsGlobal;
+  if (!stats) {
+    throw new Error("User not found or invalid payload");
+  }
+
+  const easySolved = countByDifficulty(stats.acSubmissionNum, "Easy");
+  const mediumSolved = countByDifficulty(stats.acSubmissionNum, "Medium");
+  const hardSolved = countByDifficulty(stats.acSubmissionNum, "Hard");
+  const totalAccepted = countByDifficulty(stats.acSubmissionNum, "All");
+  const totalSubmitted = countByDifficulty(stats.totalSubmissionNum, "All");
+  const acceptanceRate =
+    totalSubmitted > 0
+      ? Math.round((totalAccepted / totalSubmitted) * 10000) / 100
+      : 0;
+
+  return { easySolved, mediumSolved, hardSolved, acceptanceRate };
+}
+
 // Simulate the lcupdateNow function logic
 async function triggerLcUpdate() {
   try {
@@ -32,21 +87,7 @@ async function triggerLcUpdate() {
         
         const updatePromise = (async () => {
           try {
-            const response = await fetch(
-              "https://leetcode-stats-api.herokuapp.com/" + user.leetcode.username
-            );
-            
-            if (!response.ok) {
-              console.error("Error fetching leetcode stats for " + user_uid + ": " + response.status);
-              return false;
-            }
-            
-            const res = await response.json();
-            
-            if (res.easySolved === undefined || res.easySolved === null) {
-              console.error("Error: Invalid leetcode data for user " + user.leetcode.username);
-              return false;
-            }
+            const res = await fetchLeetCodeStats(user.leetcode.username);
             
             console.log("Fetched stats for " + user.leetcode.username + ":", res);
             
