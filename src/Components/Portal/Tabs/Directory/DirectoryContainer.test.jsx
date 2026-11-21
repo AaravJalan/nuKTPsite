@@ -22,9 +22,11 @@ test('alumni directory cannot render members and exposes only requested alumni i
   expect(container.textContent).toContain('Acme Labs');
   expect(container.textContent).toContain('2024');
   expect(container.textContent).not.toContain('Current Member');
-  for (const hidden of ['Hidden alumni bio', 'Old internship', 'Class Standing', 'Relevant Internships', 'Resume', 'Email', 'Leetcode']) expect(container.textContent).not.toContain(hidden);
+  for (const hidden of ['Hidden alumni bio', 'Old internship', 'Class Standing', 'Relevant Internships', 'Email', 'Leetcode']) expect(container.textContent).not.toContain(hidden);
   expect(container.querySelector('a[href="https://linkedin.com/in/alpha"]')).not.toBeNull();
   expect(container.querySelector('a[href="https://instagram.com/alpha"]')).not.toBeNull();
+  expect(container.querySelector('a[href="https://example.test/resume"]')).not.toBeNull();
+  expect(container.textContent).toContain('Resume');
 });
 test('members directory contains no alumni', () => {
   act(() => root.render(<Harness population="members" />));

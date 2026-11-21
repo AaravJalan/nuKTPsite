@@ -8,7 +8,7 @@ async function prepareMembers() {
   const allowedPath = path.join(directory, "source-allowed-users.json");
   const allowedUsers = fs.existsSync(allowedPath) ? JSON.parse(fs.readFileSync(allowedPath, "utf8")) : {};
   if (!source || typeof source !== "object" || Array.isArray(source)) throw new Error("Expected a Firebase public_users export.");
-  const fields = ["name", "email", "role", "year", "major", "majors", "minor", "minors", "internships", "graduation_year", "workplace", "about", "profile_pic_link", "pfp_thumb_link", "pfp_large_link", "banner_activity", "cover_page_link", "cover_resized_link", "resume_link", "resume_filename", "linkedin", "instagram", "leetcode", "pledge_tracker", "standing_viewable", "internships_viewable", "email_viewable", "allowed"];
+  const fields = ["name", "email", "role", "year", "major", "majors", "minor", "minors", "internships", "graduation_year", "workplace", "about", "profile_pic_link", "pfp_thumb_link", "pfp_large_link", "banner_activity", "cover_page_link", "cover_resized_link", "resume_link", "resume_filename", "linkedin", "instagram", "github", "leetcode", "pledge_tracker", "standing_viewable", "internships_viewable", "email_viewable", "allowed"];
   const publicUsers = {};
   for (const [uid, profile] of Object.entries(source)) {
     if (!profile || typeof profile.name !== "string" || !profile.name.trim()) continue;

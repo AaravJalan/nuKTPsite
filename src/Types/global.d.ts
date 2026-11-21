@@ -36,6 +36,7 @@ declare type UserProfileType = {
   cover_page_link?: string;
   banner_activity?: string;
   email?: string;
+  github?: string;
   instagram?: string;
   leetcode?: { username?: string; offsets?: any; answers?: any };
   linkedin?: string;
