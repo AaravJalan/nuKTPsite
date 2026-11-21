@@ -3,6 +3,7 @@ import ProfileEditorFields from "./ProfileEditorFields";
 import { assignedBannerActivity } from "../Framework/majorBanner";
 import { graduationYear } from "../Tabs/Directory/directoryModel";
 import { loadAcademicCatalogues, initialAcademicSelection, validAcademicSelection } from "./academicCatalogue";
+import { deriveClassFromEmail } from "../../../utils/classFromEmail";
 import Swal from "sweetalert2";
 import { ref, child, get, update } from "../../../localPortal/database";
 import { uploadBytes } from "../../../localPortal/storage";
@@ -42,13 +43,21 @@ class NewUser extends React.Component {
     event.preventDefault();
     if (!this.state.profileReady || this.state.uploading || !this.profileForm.current.reportValidity() || !this.academicsValid()) return;
     const value = (id) => document.getElementById(id)?.value.trim() || "";
+    const email = this.props.alumni ? this.loadedProfile?.email || "" : value("email-address");
+    const year = this.props.alumni ? "Alumni" : value("year");
+    const graduation_year = this.props.alumni ? value("graduation-year") : "";
+    const derived = deriveClassFromEmail(email);
+    const matchesEmail = Boolean(derived) && (this.props.alumni
+      ? graduation_year === derived.graduation_year
+      : year === derived.standing);
     this.initNewAcc(this.props.database, {
       uid: this.user.uid,
-      email: this.props.alumni ? this.loadedProfile?.email || "" : value("email-address"), name: value("last-name"), phone: this.props.alumni ? this.loadedProfile?.phone || "" : value("phone-number"),
-      year: this.props.alumni ? "Alumni" : value("year"), major: this.state.majors.join(", "), minor: this.state.minors.join(", "), majors: [...this.state.majors], minors: [...this.state.minors], internships: this.props.alumni ? this.loadedProfile?.internships || "" : value("internships"),
+      email, name: value("last-name"), phone: this.props.alumni ? this.loadedProfile?.phone || "" : value("phone-number"),
+      year, major: this.state.majors.join(", "), minor: this.state.minors.join(", "), majors: [...this.state.majors], minors: [...this.state.minors], internships: this.props.alumni ? this.loadedProfile?.internships || "" : value("internships"),
       insta: value("instagram"), github: value("github"), leetcode: this.props.alumni ? this.loadedProfile?.leetcode?.username || "" : value("leetcode"), linkedin: value("linkedin"),
       about: this.props.alumni ? this.loadedProfile?.about || "" : value("about"), ...this.visibility,
-      ...(this.props.alumni ? { graduation_year: value("graduation-year"), workplace: value("workplace") } : {}),
+      class_year_manual: !matchesEmail,
+      ...(this.props.alumni ? { graduation_year, workplace: value("workplace") } : {}),
     });
   };
 
@@ -144,6 +153,7 @@ class NewUser extends React.Component {
         email: config.email,
         phone: config.phone,
         year: config.year,
+        class_year_manual: Boolean(config.class_year_manual),
         major: config.major,
         banner_activity: bannerActivity,
         majors: config.majors,
@@ -169,6 +179,7 @@ class NewUser extends React.Component {
         year: config.standing_viewable
           ? config.year
           : "",
+        class_year_manual: Boolean(config.class_year_manual),
         major: config.major,
         banner_activity: bannerActivity,
         majors: config.majors,
@@ -231,8 +242,12 @@ class NewUser extends React.Component {
         this.user = user;
         this.submitButton.current.classList.remove("hidden");
         if (this.props.newuser) {
+          const email = user.email || sessionStorage.getItem("emailAddress") || "";
           document.getElementById("last-name").value = user.displayName || sessionStorage.getItem("fullName") || "";
-          document.getElementById("email-address").value = user.email || sessionStorage.getItem("emailAddress") || "";
+          document.getElementById("email-address").value = email;
+          const derived = deriveClassFromEmail(email);
+          const yearInput = document.getElementById("year");
+          if (yearInput && derived && derived.standing !== "Alumni") yearInput.value = derived.standing;
           const photo = user.photoURL || sessionStorage.getItem("photoURL") || "";
           document.getElementById("profPicImg").src = photo;
           this.photoAdded = Boolean(photo);
@@ -243,12 +258,15 @@ class NewUser extends React.Component {
             if (!snapshot.exists()) throw new Error("Member profile not found");
             const prof = snapshot.val();
             this.loadedProfile = prof;
+            const derived = !prof.class_year_manual ? deriveClassFromEmail(prof.email) : null;
             const values = {
               "last-name": prof.name, "email-address": prof.email, "phone-number": prof.phone,
-              year: prof.year, internships: prof.internships,
+              year: (!this.props.alumni && derived && derived.standing !== "Alumni" ? derived.standing : null) || prof.year,
+              internships: prof.internships,
               instagram: prof.instagram, github: prof.github, linkedin: prof.linkedin, about: prof.about,
               leetcode: prof.leetcode?.username,
-              "graduation-year": graduationYear(prof), workplace: prof.workplace,
+              "graduation-year": (this.props.alumni && derived ? derived.graduation_year : null) || graduationYear(prof),
+              workplace: prof.workplace,
             };
             Object.entries(values).forEach(([id, value]) => {
               const input = document.getElementById(id);

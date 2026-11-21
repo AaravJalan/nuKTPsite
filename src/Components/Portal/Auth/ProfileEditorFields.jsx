@@ -17,9 +17,12 @@ export default function ProfileEditorFields({ editor }) {
         <Field id="last-name" label="Name" required type="text" autoComplete="name" defaultValue={props.dn || ''} />
         {!props.alumni && <Field id="email-address" label="Email" required type="email" autoComplete="email" />}
         {!props.alumni && <Field id="phone-number" label="Phone" required type="tel" autoComplete="tel" />}
-        {props.alumni ? <Field id="graduation-year" label="Graduation year" type="number" min="1900" max={new Date().getFullYear() + 10} step="1" placeholder="YYYY" /> : <div className="profile-edit-field"><label htmlFor="year">Year<RequiredMark /></label><select id="year" name="year" required defaultValue="">
+        {props.alumni ? <>
+          <Field id="graduation-year" label="Graduation year" type="number" min="1900" max={new Date().getFullYear() + 10} step="1" placeholder="YYYY" />
+          <p className="profile-edit-note profile-edit-wide">Defaults from NU email. Change if standing differs.</p>
+        </> : <div className="profile-edit-field"><label htmlFor="year">Year<RequiredMark /></label><select id="year" name="year" required defaultValue="">
           <option value="" disabled>Select year</option>{['Freshman', 'Sophomore', 'Junior', 'Senior'].map(year => <option key={year}>{year}</option>)}
-        </select></div>}
+        </select><p className="profile-edit-note">Defaults from NU email. Change if standing differs.</p></div>}
         <div className="profile-edit-wide"><AcademicSelector id="major" label="Major(s)" required options={state.catalogues?.majors || []} disabled={!state.catalogues || !state.profileReady} selected={state.majors} query={state.majorQuery} onQueryChange={majorQuery => editor.setState({ majorQuery })} onChange={majors => editor.setState({ majors })} /></div>
         {!props.alumni && <div className="profile-edit-wide"><AcademicSelector id="minor" label="Minor(s)" options={state.catalogues?.minors || []} disabled={!state.catalogues || !state.profileReady} selected={state.minors} query={state.minorQuery} onQueryChange={minorQuery => editor.setState({ minorQuery })} onChange={minors => editor.setState({ minors })} /></div>}
       </div>
