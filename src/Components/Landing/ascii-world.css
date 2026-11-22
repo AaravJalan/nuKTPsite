@@ -148,17 +148,32 @@
   .ktp-landing .studio-links { justify-content: flex-start; }
 }
 @media (max-width:640px) {
-  .ktp-landing .studio-header { display: none; }
-  .ktp-landing [id] { scroll-margin-top: 16px; }
+  .ktp-landing .studio-header { height: 96px; }
+  /* Header overlays the hero iframe — don't add extra top padding. */
+  .ktp-landing .studio-hero { padding-top: 0; }
+  .ktp-landing [id] { scroll-margin-top: 112px; }
+  .ktp-landing .studio-nav {
+    width: calc(100% - 36px);
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .ktp-landing .studio-links { display: none; }
+  .ktp-landing .studio-logo {
+    display: grid;
+    place-items: center;
+    margin-left: 10px;
+  }
+  .ktp-landing .studio-logo img { width: 76px; height: 64px; }
+  .ktp-landing .studio-portal {
+    font-size: 12px;
+    padding: 12px 14px;
+  }
   .ktp-landing .studio-greeting .group > img { height: auto; aspect-ratio: 4 / 5; object-position: center top; }
   .ktp-landing .studio-greeting .group > .absolute.inset-0 { display: none; }
   .ktp-landing .studio-greeting .group > .absolute.bottom-0 { position: static; padding: 22px; background: #211832; }
   .ktp-landing .studio-greeting blockquote { font-size: 16px; line-height: 1.5; }
-  .ktp-landing .studio-nav { width: calc(100% - 24px); gap: 12px; }
-  .ktp-landing .studio-links { justify-content: flex-start; gap: 20px; }
-  .ktp-landing .studio-nav :is(.studio-links a, .studio-portal) { font-size: 13px; }
-  .ktp-landing .studio-links a::after { bottom: 12px; }
-  .ktp-landing .studio-portal { padding: 8px 10px; }
   .ktp-landing .ascii-opening { min-height:500px; }
   .ktp-landing .ascii-hero .studio-hero-grid { padding-top:52px; }
   .ktp-landing main .studio-section { padding-top: 40px; padding-bottom: 140px; }
