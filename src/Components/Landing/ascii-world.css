@@ -39,6 +39,7 @@
 .ktp-landing .studio-links a::after { bottom: 18px; height: 2px; border-radius: 2px; transform-origin: center; transition: transform .2s ease; }
 .ktp-landing .studio-portal { padding: 10px 16px; background: #72529b24; border-color: #b698da; }
 .ktp-landing .studio-portal:hover { background: #72529b55; }
+.ktp-landing .studio-logo { transform: translateY(2.5px); }
 .ktp-landing .studio-greeting .uppercase,
 .ktp-landing .studio-rush time { font-size: 13px; font-weight: 400; letter-spacing: .06em; }
 .ktp-landing .studio-greeting dd { font-size: 26px; font-weight: 600; letter-spacing: -.04em; }
@@ -148,10 +149,12 @@
   .ktp-landing .studio-links { justify-content: flex-start; }
 }
 @media (max-width:640px) {
-  .ktp-landing .studio-header { height: 96px; }
-  /* Header overlays the hero iframe — don't add extra top padding. */
+  .ktp-landing .studio-header {
+    position: relative;
+    height: 88px;
+  }
   .ktp-landing .studio-hero { padding-top: 0; }
-  .ktp-landing [id] { scroll-margin-top: 112px; }
+  .ktp-landing [id] { scroll-margin-top: 24px; }
   .ktp-landing .studio-nav {
     width: calc(100% - 36px);
     grid-template-columns: auto auto;
@@ -164,8 +167,9 @@
     display: grid;
     place-items: center;
     margin-left: 10px;
+    transform: translateY(3px);
   }
-  .ktp-landing .studio-logo img { width: 76px; height: 64px; }
+  .ktp-landing .studio-logo img { width: 66px; height: 55px; }
   .ktp-landing .studio-portal {
     font-size: 12px;
     padding: 12px 14px;
