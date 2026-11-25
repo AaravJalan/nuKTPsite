@@ -1,8 +1,8 @@
 const { spawn } = require("child_process");
 const path = require("path");
 
-const child = spawn(process.execPath, [require.resolve("@craco/craco/dist/bin/craco.js"), "start"], {
-  cwd: path.resolve(__dirname, ".."),
+const child = spawn(process.execPath, [require.resolve("@craco/craco/dist/bin/craco.js"), "start", "--config", "config/craco.config.js"], {
+  cwd: path.resolve(__dirname, "../.."),
   stdio: "inherit",
   env: { ...process.env, REACT_APP_PORTAL_DEMO: "true", REACT_APP_PORTAL_LIVE: "false", HOST: "127.0.0.1", PORT: process.env.PORT || "3001", BROWSER: "none" },
 });

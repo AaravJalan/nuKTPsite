@@ -1,7 +1,14 @@
 import React from "react";
 import NewUser from './NewUser';
 
-class NewUserCont extends React.Component {
+type NewUserContProps = {
+  firebase: any;
+  provider: any;
+  database: any;
+  storage: any;
+};
+
+class NewUserCont extends React.Component<NewUserContProps, Record<string, never>> {
   render() {
     return (
       <div className="bg-gray-100">

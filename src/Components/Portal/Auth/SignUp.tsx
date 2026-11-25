@@ -3,13 +3,19 @@ import Swal from "sweetalert2";
 import { ref, child, get } from "../../../localPortal/database";
 import PCGroup from "@images/Branding/groupPC-min.jpg";
 
-class SignUp extends React.Component {
+type AuthProps = {
+  firebase: any;
+  provider: any;
+  database: any;
+};
+
+class SignUp extends React.Component<AuthProps, Record<string, never>> {
 
   componentDidMount() {
-    this.props.firebase.auth().onAuthStateChanged((user) => {
+    this.props.firebase.auth().onAuthStateChanged((user: any) => {
       if(user) {
         const dbRef = ref(this.props.database);
-        get(child(dbRef, "users/" + user.uid)).then((snapshot) => {
+        get(child(dbRef, "users/" + user.uid)).then((snapshot: any) => {
           if (snapshot.exists()) {
             const val = snapshot.val();
             if (val["allowed"] === true && val["signed_up"]) {
@@ -26,7 +32,7 @@ class SignUp extends React.Component {
     })
   }
 
-  completeSignin(result) {
+  completeSignin(result: any) {
     var user = result.user;
     if (!user.email.includes("northwestern.edu") && window.location.hostname !== "localhost") {
       this.props.firebase.auth().signOut();
@@ -40,13 +46,13 @@ class SignUp extends React.Component {
       return;
     }
 
-    let timerInterval;
+    let timerInterval: ReturnType<typeof setInterval> | undefined;
     sessionStorage.setItem("fullName", user.displayName);
     sessionStorage.setItem("emailAddress", user.email);
     sessionStorage.setItem("photoURL", user.photoURL);
     const dbRef = ref(this.props.database);
     get(child(dbRef, "users/" + user.uid))
-      .then((user_snapshot) => {
+      .then((user_snapshot: any) => {
         if (!user_snapshot.exists()) {
           if (window.location.hostname === "localhost") {
             Swal.fire({
@@ -101,12 +107,12 @@ class SignUp extends React.Component {
             willClose: () => {
               clearInterval(timerInterval);
             },
-          }).then((result) => {
+          }).then(() => {
             window.location.href = "/newuser";
           });
         }
       })
-      .catch((err) => {
+      .catch((err: any) => {
         if (String(err).includes("Permission") || String(err).includes("PERMISSION")) {
           this.props.firebase.auth().signOut();
           Swal.fire({
@@ -153,10 +159,10 @@ class SignUp extends React.Component {
                           this.props.firebase
                             .auth()
                             .signInWithPopup(this.props.provider)
-                            .then((data) => {
+                            .then((data: any) => {
                               this.completeSignin(data);
                             })
-                            .catch((error) => {
+                            .catch((error: any) => {
                               const errorMessage = error.message;
                               if(String(errorMessage).includes("popup-closed")) {
                                 console.warn("Popup sign-in failed; using redirect.");

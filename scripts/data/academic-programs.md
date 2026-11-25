@@ -14,7 +14,7 @@ not verified entries from the admissions table. The importer preserves them.
 To refresh, download the official page to a local HTML file and run:
 
 ```sh
-python scripts/import-academic-programs.py path/to/page.html
+python scripts/data/import-academic-programs.py path/to/page.html
 ```
 
 Profiles store canonical `majors` and `minors` arrays plus joined `major` and

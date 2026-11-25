@@ -73,7 +73,7 @@ route serves it to same-origin loopback requests in demo mode.
 To refresh it, export `/public_users` from project `ktp-site` to
 `.local-portal/source-public-users.json` and `/allowed_users` to
 `.local-portal/source-allowed-users.json` with `firebase database:get`, then run
-`node scripts/prepare-portal-members.js` and reload the demo. The preparation script
+`node scripts/data/prepare-portal-members.js` and reload the demo. The preparation script
 merges authoritative role assignments using the same resolver as the portal:
 explicit UID assignments take priority, followed by Northwestern email username
 assignments, then the public profile's role. Use a Node version

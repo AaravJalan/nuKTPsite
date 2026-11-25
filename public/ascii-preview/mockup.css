@@ -33,9 +33,16 @@ html[data-style="blocks"] .scene { background: radial-gradient(ellipse at 50% 35
 .countdown h2 { font-family: "KTP Heading", sans-serif; font-weight: 700; }
 .countdown-numbers strong, .colon { font-family: "KTP Heading", sans-serif; }
 @media (max-width: 600px) {
-  /* Keep vertical centering for breathing room, but don't stack extra
-     page padding on top of the iframe (that was the huge dead zone). */
-  .scene { place-items: center; padding: 112px 12px 36px; }
+  /* Header is in normal flow on mobile, so center in the remaining viewport
+     with even padding (no extra top offset for a fixed bar). */
+  html, body { height: 100%; }
+  .scene {
+    min-height: 100%;
+    height: 100%;
+    place-items: center;
+    align-content: center;
+    padding: 20px 12px;
+  }
   .art-field canvas { transform: scale(1.05); }
   .countdown { margin-top: -15px; }
   .countdown-numbers { padding: 16px 0 18px; gap: 2px; }

@@ -2,7 +2,7 @@
 /**
  * Derive class standing / graduation year from NU emails (...YYYY@u.northwestern.edu).
  *
- * Dry-run by default. Apply with: node scripts/sync-class-from-email.js --apply
+ * Dry-run by default. Apply with: node scripts/ops/sync-class-from-email.js --apply
  *
  * Skips profiles with class_year_manual=true (set when a member overrides standing in settings).
  *

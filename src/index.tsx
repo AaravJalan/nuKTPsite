@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
+import "./styles/index.css";
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import MemberPage from "@portal/AppContainer";
@@ -18,7 +18,7 @@ import { isLocalPortalDemo, isReadOnlyLivePortal } from "./localPortal/config";
 import { demoFirebase, demoDatabase, demoStorage, loadLocalMemberSnapshot } from "./localPortal/runtime";
 import { createReadOnlyFirebase } from "./localPortal/readOnly";
 import LivePortalGate from "./localPortal/LivePortalGate";
-import "./terminal-theme.css";
+import "./styles/terminal-theme.css";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBY_olTq-IJkQs1-VXTCgxIUzlD7_-3MXQ",

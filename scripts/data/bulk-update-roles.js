@@ -1,5 +1,5 @@
 // Bulk update user roles in Firebase
-// Usage: node scripts/bulk-update-roles.js
+// Usage: node scripts/data/bulk-update-roles.js
 
 const admin = require('firebase-admin');
 const serviceAccount = require('../path-to-your-service-account-key.json');
