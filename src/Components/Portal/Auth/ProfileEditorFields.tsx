@@ -1,13 +1,12 @@
-import React from 'react';
 import AcademicSelector from './AcademicSelector';
 import './ProfileEditorFields.css';
 
 function RequiredMark() { return <span className="portal-required-mark" aria-hidden="true"> *</span>; }
-function Field({ id, label, required = false, ...props }) {
+function Field({ id, label, required = false, ...props }: any) {
   return <div className="profile-edit-field"><label htmlFor={id}>{label}{required && <RequiredMark />}</label><input id={id} name={id} required={required} {...props} /></div>;
 }
 
-export default function ProfileEditorFields({ editor }) {
+export default function ProfileEditorFields({ editor }: { editor: any }) {
   const { state, props } = editor;
   const busy = !state.profileReady || state.uploading;
   return <form className="portal-profile-form profile-edit" ref={editor.profileForm} onSubmit={editor.submitProfile}>

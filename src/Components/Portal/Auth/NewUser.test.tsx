@@ -13,11 +13,11 @@ import { uploadBytes, getDownloadURL } from "../../../localPortal/storage";
 
 jest.mock("sweetalert2", () => ({ fire: jest.fn() }));
 jest.mock("../../../localPortal/database", () => ({
-  ref: (database, path) => ({ path }), child: (reference, path) => ({ path }),
+  ref: (_database: any, path: any) => ({ path }), child: (_reference: any, path: any) => ({ path }),
   get: jest.fn(), update: jest.fn(),
 }));
 jest.mock("../../../localPortal/storage", () => ({
-  ref: (storage, path) => ({ path }), uploadBytes: jest.fn(), getDownloadURL: jest.fn(),
+  ref: (_storage: any, path: any) => ({ path }), uploadBytes: jest.fn(), getDownloadURL: jest.fn(),
 }));
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 
@@ -29,15 +29,17 @@ const savedProfile = {
   email_viewable: false, standing_viewable: false, internships_viewable: true,
   announcement_level: 2,
 };
-let container, root, editor;
+let container: HTMLDivElement | null = null;
+let root: ReturnType<typeof createRoot> | null = null;
+let editor: any = null;
 
 beforeEach(() => {
   jest.clearAllMocks();
-  loadAcademicCatalogues.mockResolvedValue(catalogues);
-  Swal.fire.mockImplementation(() => new Promise(() => {}));
-  update.mockResolvedValue(undefined);
-  uploadBytes.mockResolvedValue({ ref: {} });
-  getDownloadURL.mockResolvedValue("https://example.test/uploaded-file");
+   (loadAcademicCatalogues as any).mockResolvedValue(catalogues);
+  (Swal.fire as any).mockImplementation(() => new Promise(() => {}));
+  (update as any).mockResolvedValue(undefined);
+  (uploadBytes as any).mockResolvedValue({ ref: {} });
+  (getDownloadURL as any).mockResolvedValue("https://example.test/uploaded-file");
 });
 afterEach(() => {
   if (root) act(() => root.unmount());
@@ -46,7 +48,7 @@ afterEach(() => {
 });
 
 async function mountEditor(profile, props = {}) {
-  get.mockResolvedValue({ exists: () => true, val: () => profile });
+  (get as any).mockResolvedValue({ exists: () => true, val: () => profile });
   container = document.createElement("div");
   document.body.appendChild(container);
   root = createRoot(container);

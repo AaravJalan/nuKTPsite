@@ -1,5 +1,5 @@
 {
-  "name": "ktp-revamp",
+  "name": "nuktpsite",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -26,11 +26,11 @@
     "typescript": "^4.9.5"
   },
   "scripts": {
-    "start": "craco start",
-    "start:portal": "node scripts/start-portal-demo.js",
-    "start:portal:live": "node scripts/start-portal-live.js",
-    "build": "craco build",
-    "test": "craco test",
+    "start": "craco start --config config/craco.config.js",
+    "start:portal": "node scripts/ops/start-portal-demo.js",
+    "start:portal:live": "node scripts/ops/start-portal-live.js",
+    "build": "craco build --config config/craco.config.js",
+    "test": "craco test --config config/craco.config.js",
     "eject": "craco eject",
     "stopall": "lsof -t -i:9099 -i:5001 -i:9000 -i:5002 -i:9199 | xargs kill -9"
   },

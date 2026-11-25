@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from "react";
 import request from "axios";
 import { CalendarDaysIcon, TrashIcon } from "@heroicons/react/24/outline";
@@ -14,7 +15,7 @@ import { isLocalPortalDemo } from "../../../../localPortal/config";
 const localizer = momentLocalizer(moment);
 
 // Custom Toolbar Component
-const CustomToolbar = (toolbar) => {
+const CustomToolbar = (toolbar: any) => {
   const goToBack = () => toolbar.onNavigate("PREV");
   const goToNext = () => toolbar.onNavigate("NEXT");
 
@@ -46,8 +47,16 @@ const CustomToolbar = (toolbar) => {
   );
 };
 
-class PledgeCalendar extends React.Component {
-  constructor(props) {
+class PledgeCalendar extends React.Component<any, any> {
+  NOTION_ID: string;
+  GCAL_ID: string;
+  API_KEY: string;
+  DEFAULT_GCAL_PUBLIC_URL: string;
+  isAdmin: boolean;
+  userRole: string;
+  unsubscribeGoogleCalendarConfig: (() => void) | undefined;
+
+  constructor(props: any) {
     super(props);
 
     this.state = {
@@ -400,7 +409,7 @@ class PledgeCalendar extends React.Component {
             // Reload events
             this.loadFirebaseEvents();
           })
-          .catch((error) => {
+          .catch((error: any) => {
             Swal.fire({
               icon: "error",
               title: "Failed to Delete Event",

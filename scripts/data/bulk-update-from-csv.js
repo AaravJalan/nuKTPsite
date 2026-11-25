@@ -1,5 +1,5 @@
 // Bulk update user roles from CSV file
-// Usage: node scripts/bulk-update-from-csv.js roles.csv
+// Usage: node scripts/data/bulk-update-from-csv.js roles.csv
 
 const admin = require('firebase-admin');
 const fs = require('fs');

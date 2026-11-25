@@ -69,23 +69,7 @@ function drawSky(t) {
     skyContext.fillText(glyph, x, y);
   }
 
-  if (spaceScene) {
-    const still = motionPreference.matches;
-    if (!still) {
-      // Two staggered shooting stars pass briefly through the outer sky.
-      [{ offset: 3, period: 16, x: .03, y: .12, dx: .22, dy: .06 },
-       { offset: 11, period: 23, x: .68, y: .72, dx: .20, dy: -.06 }].forEach((star) => {
-        const phase = (t + star.offset) % star.period;
-        if (phase >= 1.8) return;
-        const progress = phase / 1.8;
-        const x = width * (star.x + star.dx * progress), y = height * (star.y + star.dy * progress);
-        skyContext.globalAlpha = .5 * Math.sin(progress * Math.PI);
-        skyContext.fillStyle = "#e4d0ff";
-        skyContext.fillText("·  .  +  *", x, y);
-        skyContext.globalAlpha = 1;
-      });
-    }
-  }
+  // Space scene: sparse drifting field only (no shooting-star clumps).
   if (spaceScene) return;
 
   const fish = [
