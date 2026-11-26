@@ -18,16 +18,21 @@ function asString(value: unknown): string {
   return typeof value === "string" ? value : "";
 }
 
-function githubUsername(raw: string): string {
-  let username = raw.trim().replace(/^@+/, "");
-  username = username.replace(/^https?:\/\/(www\.)?github\.com\//i, "");
+function socialUsername(raw: string, prefixPattern: RegExp): string {
+  const username = raw.trim().replace(/^@+/, "").replace(prefixPattern, "");
   return username.split(/[/?#]/)[0] || "";
 }
 
+function githubUsername(raw: string): string {
+  return socialUsername(raw, /^https?:\/\/(www\.)?github\.com\//i);
+}
+
 function linkedinUsername(raw: string): string {
-  let username = raw.trim().replace(/^@+/, "");
-  username = username.replace(/^(https?:\/\/)?(www\.)?linkedin\.com\/in\//i, "");
-  return username.split(/[/?#]/)[0] || "";
+  return socialUsername(raw, /^(https?:\/\/)?(www\.)?linkedin\.com\/in\//i);
+}
+
+function instagramUsername(raw: string): string {
+  return socialUsername(raw, /^(https?:\/\/)?(www\.)?instagram\.com\//i);
 }
 
 function IndivProfile(props: {
@@ -54,7 +59,7 @@ function IndivProfile(props: {
   }
   const profileImage = asString(currProfile.pfp_large_link) || asString(currProfile.profile_pic_link);
   const profileName = asString(currProfile.name) || "Member";
-  const profileEmail = props.alumni ? "" : asString(currProfile.email);
+  const profileEmail = props.alumni ? asString(currProfile.personal_email) : asString(currProfile.email);
   const resumeLink = asString(currProfile.resume_link);
   const aboutHtml = asString(currProfile.about);
   const majorLabels = profileMajors(currProfile);
@@ -82,10 +87,11 @@ function IndivProfile(props: {
       ),
     });
   }
-  if (asString(currProfile.instagram)) {
+  const instagramHandle = instagramUsername(asString(currProfile.instagram));
+  if (instagramHandle) {
     socials.push({
       name: "Instagram",
-      href: "https://instagram.com/" + asString(currProfile.instagram),
+      href: "https://instagram.com/" + instagramHandle,
       className: "text-[#E1306C] hover:text-[#C13584]",
       icon: (props:any) => (
         <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
@@ -213,16 +219,13 @@ function IndivProfile(props: {
                         )
                       )}
                     </div>
-                    {!props.alumni && (
+                    {profileEmail && (
                     <button
                       onClick={() => {
                         window.location.href = "mailto:" + profileEmail;
                       }}
                       type="button"
-                      className={classNames(
-                        profileEmail ? "" : "hidden",
-                        "inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-blue-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
-                      )}
+                      className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-blue-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
                     >
                       <EnvelopeIcon
                         className="-ml-1 mr-2 h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors"

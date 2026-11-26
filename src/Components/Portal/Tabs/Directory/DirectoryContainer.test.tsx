@@ -7,7 +7,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 const profiles = {
   me: { name: 'Current Member', role: 'Member', major: 'Computer Science', year: 'Junior', about: 'Member biography' },
   a: { name: 'Alum Alpha', role: 'Alumni', graduation_year: '2024', majors: ['Data Science'], workplace: 'Acme Labs', instagram: 'alpha', linkedin: 'alpha', about: 'Hidden alumni bio', internships: 'Old internship', email: 'alpha@example.test', resume_link: 'https://example.test/resume', leetcode: { username: 'alpha' } },
-  b: { name: 'Alum Beta', role: 'Alumni', graduation_year: '2023', major: 'Economics', workplace: 'Beta Studio', linkedin: 'https://www.linkedin.com/in/beta-user/' },
+  b: { name: 'Alum Beta', role: 'Alumni', graduation_year: '2023', major: 'Economics', workplace: 'Beta Studio', linkedin: 'https://www.linkedin.com/in/beta-user/', instagram: 'https://www.instagram.com/beta-ig/', personal_email: 'beta@personal.test' },
 };
 let container, root;
 beforeEach(() => { HTMLElement.prototype.scrollTo = jest.fn(); container = document.createElement('div'); document.body.appendChild(container); root = createRoot(container); });
@@ -21,7 +21,7 @@ test('alumni directory cannot render members and exposes only requested alumni i
   expect(container.textContent).toContain('Alumni Directory');
   expect(container.textContent).toContain('Acme Labs');
   expect(container.textContent).toContain('2024');
-  expect(container.querySelector('.portal-directory-role[data-role=alumni]').textContent).toBe('’2024');
+  expect(container.querySelector('.portal-directory-role[data-role=alumni]').textContent).toBe('2024');
   expect(container.textContent).not.toContain('Current Member');
   for (const hidden of ['Hidden alumni bio', 'Old internship', 'Class Standing', 'Relevant Internships', 'Email', 'Leetcode']) expect(container.textContent).not.toContain(hidden);
   expect(container.querySelector('a[href="https://linkedin.com/in/alpha"]')).not.toBeNull();
@@ -40,6 +40,8 @@ test('alumni search finds workplace and profile selection works after opening a 
   act(() => [...container.querySelectorAll('.portal-directory-member')].find(b => b.textContent.includes('Alum Beta')).click());
   expect(container.querySelector('article h1').textContent).toBe('Alum Beta');
   expect(container.querySelector('a[href="https://linkedin.com/in/beta-user"]')).not.toBeNull();
+  expect(container.querySelector('a[href="https://instagram.com/beta-ig"]')).not.toBeNull();
+  expect(container.textContent).toContain('Email');
   expect(container.querySelector('.portal-profile-avatar .portal-avatar-placeholder').textContent).toBe('A');
   const search = container.querySelector('input[type=search]');
   act(() => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(search, 'Acme'); search.dispatchEvent(new Event('input', { bubbles: true })); });
