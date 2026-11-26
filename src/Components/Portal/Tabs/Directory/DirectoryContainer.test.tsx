@@ -7,7 +7,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 const profiles = {
   me: { name: 'Current Member', role: 'Member', major: 'Computer Science', year: 'Junior', about: 'Member biography' },
   a: { name: 'Alum Alpha', role: 'Alumni', graduation_year: '2024', majors: ['Data Science'], workplace: 'Acme Labs', instagram: 'alpha', linkedin: 'alpha', about: 'Hidden alumni bio', internships: 'Old internship', email: 'alpha@example.test', resume_link: 'https://example.test/resume', leetcode: { username: 'alpha' } },
-  b: { name: 'Alum Beta', role: 'Alumni', graduation_year: '2023', major: 'Economics', workplace: 'Beta Studio' },
+  b: { name: 'Alum Beta', role: 'Alumni', graduation_year: '2023', major: 'Economics', workplace: 'Beta Studio', linkedin: 'https://www.linkedin.com/in/beta-user/' },
 };
 let container, root;
 beforeEach(() => { HTMLElement.prototype.scrollTo = jest.fn(); container = document.createElement('div'); document.body.appendChild(container); root = createRoot(container); });
@@ -38,6 +38,8 @@ test('alumni search finds workplace and profile selection works after opening a 
   act(() => root.render(<Harness population="alumni" initialProfileUid="a" />));
   act(() => [...container.querySelectorAll('.portal-directory-member')].find(b => b.textContent.includes('Alum Beta')).click());
   expect(container.querySelector('article h1').textContent).toBe('Alum Beta');
+  expect(container.querySelector('a[href="https://linkedin.com/in/beta-user"]')).not.toBeNull();
+  expect(container.querySelector('.portal-profile-avatar .portal-avatar-placeholder').textContent).toBe('A');
   const search = container.querySelector('input[type=search]');
   act(() => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(search, 'Acme'); search.dispatchEvent(new Event('input', { bubbles: true })); });
   expect(container.querySelectorAll('.portal-directory-member')).toHaveLength(1);

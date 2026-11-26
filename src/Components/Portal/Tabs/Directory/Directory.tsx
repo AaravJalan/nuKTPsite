@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { graduationYear } from "./directoryModel";
+import ProfileAvatar from "./ProfileAvatar";
 import {
   FunnelIcon,
   MagnifyingGlassIcon,
@@ -234,10 +235,10 @@ function Directory(props: any) {
                         )}
                       >
                         <div className="flex-shrink-0">
-                          <img
+                          <ProfileAvatar
                             className="h-10 w-10 rounded-full object-cover"
                             src={personImage}
-                            alt=""
+                            name={personName}
                             loading="lazy"
                             decoding="async"
                           />

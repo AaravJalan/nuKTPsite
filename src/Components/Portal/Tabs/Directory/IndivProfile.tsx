@@ -3,6 +3,7 @@ import { MouseEventHandler, useEffect, useRef } from "react";
 import ProfileCover from "../../Framework/ProfileCover";
 import PortalBackdrop from "../../Framework/PortalBackdrop";
 import { alumniFacts, profileAcademics, profileMajors, profileMinors } from "./directoryModel";
+import ProfileAvatar from "./ProfileAvatar";
 import {
   ChevronLeftIcon,
   EnvelopeIcon,
@@ -20,6 +21,12 @@ function asString(value: unknown): string {
 function githubUsername(raw: string): string {
   let username = raw.trim().replace(/^@+/, "");
   username = username.replace(/^https?:\/\/(www\.)?github\.com\//i, "");
+  return username.split(/[/?#]/)[0] || "";
+}
+
+function linkedinUsername(raw: string): string {
+  let username = raw.trim().replace(/^@+/, "");
+  username = username.replace(/^(https?:\/\/)?(www\.)?linkedin\.com\/in\//i, "");
   return username.split(/[/?#]/)[0] || "";
 }
 
@@ -58,10 +65,11 @@ function IndivProfile(props: {
       ? asString(currProfile.leetcode.username)
       : "";
   var socials: Array<{ name: string; href: string; icon: any; className: string }> = [];
-  if (asString(currProfile.linkedin)) {
+  const linkedinHandle = linkedinUsername(asString(currProfile.linkedin));
+  if (linkedinHandle) {
     socials.push({
       name: "LinkedIn",
-      href: "https://linkedin.com/in/" + asString(currProfile.linkedin),
+      href: "https://linkedin.com/in/" + linkedinHandle,
       className: "text-[#0A66C2] hover:text-[#084C8C]",
       icon: (props:any) => (
         <svg fill="currentColor" viewBox="0 -1.3 28 28" {...props}>
@@ -174,10 +182,10 @@ function IndivProfile(props: {
             </div>
             <div className="portal-profile-heading mx-auto max-w-5xl">
                 <div className="portal-profile-avatar">
-                  <img
+                  <ProfileAvatar
                     className="rounded-full object-cover"
                     src={profileImage}
-                    alt=""
+                    name={profileName}
                   />
                 </div>
                 <div className="portal-profile-identity">
