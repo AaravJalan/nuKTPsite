@@ -21,5 +21,5 @@ export function profileAcademics(profile: any): string {
   return [profileMajors(profile), profileMinors(profile)].filter(Boolean).join(', ');
 }
 export function alumniFacts(profile: any): Record<string, string> {
-  return { 'Graduation year': graduationYear(profile) || 'Not added', 'Major/Minor': profileAcademics(profile) || 'Not added', 'Workplace': typeof profile?.workplace === 'string' && profile.workplace.trim() ? profile.workplace.trim() : 'Not added' };
+  return { 'Graduation Year': graduationYear(profile) || 'Not added', 'Major/Minor': profileAcademics(profile) || 'Not added', 'Workplace': typeof profile?.workplace === 'string' && profile.workplace.trim() ? profile.workplace.trim() : 'Not added' };
 }

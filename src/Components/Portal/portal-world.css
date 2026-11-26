@@ -136,6 +136,7 @@
 .ktp-portal .portal-directory-role[data-role=exec] { color: #e1c4ff; }
 .ktp-portal .portal-directory-role[data-role=pledge] { color: #d2c5e5; }
 .ktp-portal .portal-directory-role[data-role=alumni] { color: #c4afd7; }
+.ktp-portal .portal-alumni-apostrophe { display: inline-block; transform: scaleX(-1); margin-right: 1px; }
 .ktp-portal .portal-directory-member[aria-pressed=true] {
   background: linear-gradient(90deg, #6540959c, #4e2a8433); border-left-color: #d8c4ff;
 }

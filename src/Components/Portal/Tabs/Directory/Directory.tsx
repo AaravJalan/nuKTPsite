@@ -221,7 +221,15 @@ function Directory(props: any) {
                   const person = shownDirectory[0][letter][uid]; //individual profile
                   const personName = toDisplayString(person?.name) || "Member";
                   const personRole = toDisplayString(person?.role);
-                  const roleLabel = alumni && graduationYear(person) ? `Class of ${graduationYear(person)}` : personRole;
+                  const gradYear = alumni ? graduationYear(person) : "";
+                  const roleLabel = gradYear ? (
+                    <>
+                      <span className="portal-alumni-apostrophe" aria-hidden="true">’</span>
+                      {gradYear}
+                    </>
+                  ) : (
+                    personRole
+                  );
                   const roleStyle = alumni ? "alumni" : /^pledge$/i.test(personRole.trim()) ? "pledge" : /^(VP of|President|Vice President|Co-President|Treasurer|Secretary)/i.test(personRole) ? "exec" : "member";
                   const personImage = toDisplayString(person?.pfp_thumb_link) || toDisplayString(person?.profile_pic_link);
                   return (

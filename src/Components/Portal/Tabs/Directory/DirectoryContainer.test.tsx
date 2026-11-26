@@ -21,6 +21,7 @@ test('alumni directory cannot render members and exposes only requested alumni i
   expect(container.textContent).toContain('Alumni Directory');
   expect(container.textContent).toContain('Acme Labs');
   expect(container.textContent).toContain('2024');
+  expect(container.querySelector('.portal-directory-role[data-role=alumni]').textContent).toBe('’2024');
   expect(container.textContent).not.toContain('Current Member');
   for (const hidden of ['Hidden alumni bio', 'Old internship', 'Class Standing', 'Relevant Internships', 'Email', 'Leetcode']) expect(container.textContent).not.toContain(hidden);
   expect(container.querySelector('a[href="https://linkedin.com/in/alpha"]')).not.toBeNull();

@@ -12,7 +12,7 @@ test('graduation years are explicit, never guessed from standing', () => {
   expect(graduationYear({ year: 'Alumni' })).toBe('');
 });
 test('alumni facts show only requested fields and never treat past internships as current work', () => {
-  expect(alumniFacts({ graduation_year: '2023', majors: ['Economics', 'Data Science'], workplace: 'Acme', internships: 'Old internship', about: 'Bio', email: 'private@example.test' })).toEqual({ 'Graduation year': '2023', 'Major/Minor': 'Economics, Data Science', Workplace: 'Acme' });
+  expect(alumniFacts({ graduation_year: '2023', majors: ['Economics', 'Data Science'], workplace: 'Acme', internships: 'Old internship', about: 'Bio', email: 'private@example.test' })).toEqual({ 'Graduation Year': '2023', 'Major/Minor': 'Economics, Data Science', Workplace: 'Acme' });
   expect(alumniFacts({ internships: 'Former company' })['Workplace']).toBe('Not added');
 });
 
